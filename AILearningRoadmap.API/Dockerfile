@@ -1,19 +1,21 @@
 ﻿# Build aşaması
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Proje dosyalarını kopyala ve restore et
-COPY *.csproj ./
-RUN dotnet restore
+# Proje dosyasını kopyala (Klasör adınla eşleşmeli)
+COPY ["AILearningRoadmap.API.csproj", "./"]
+RUN dotnet restore "./AILearningRoadmap.API.csproj"
 
-# Tüm dosyaları kopyala ve yayınla
+# Kalan tüm dosyaları kopyala
 COPY . .
-RUN dotnet publish -c Release -o out
+RUN dotnet build "AILearningRoadmap.API.csproj" -c Release -o /app/build
+
+# Yayınlama aşaması
+FROM build AS publish
+RUN dotnet publish "AILearningRoadmap.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Çalıştırma aşaması
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=build /app/out .
-
-# Uygulamayı başlat
-ENTRYPOINT ["dotnet", "AILearningRoadmap.API.dll"] 
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "AILearningRoadmap.API.dll"]
