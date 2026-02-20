@@ -16,4 +16,4 @@ WORKDIR /app
 COPY --from=build /app/out .
 
 # Uygulamayı başlat
-ENTRYPOINT ["dotnet", "AILearningRoadmap.API.dll"]
+ENTRYPOINT ["dotnet", "AILearningRoadmap.API.dll"] 
